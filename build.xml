@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+
+<project name="MumbleLink">
+	<property name="jdk.dir" value="${java.home}/.."/>
+	<property name="java.src.dir" value="src/java"/>
+	<property name="cpp.src.dir" value="src/cpp"/>
+	<property name="bin.dir" value="bin"/>
+	<property name="header.dir" value="include"/>
+	<property name="dist.dir" value="dist"/>
+
+	<fileset id="cpp.files" dir="${cpp.src.dir}">
+		<include name="**/*.cpp"/>
+	</fileset>
+
+	<pathconvert property="cpp.files.list" refid="cpp.files" pathsep=" "/>
+
+	<target name="compile">
+		<mkdir dir="${bin.dir}"/>
+		<javac srcdir="${java.src.dir}" destdir="${bin.dir}" includeAntRuntime="false"/>
+	</target>
+
+	<target name="generateHeaders" depends="compile">
+		<mkdir dir="${header.dir}"/>
+		<javah classpath="${bin.dir}" destdir="${header.dir}"
+			class="net.aib42.mumblelink.MumbleLink"/>
+	</target>
+
+	<target name="compileNative" depends="generateHeaders">
+		<mkdir dir="${dist.dir}/native"/>
+		<exec executable="g++">
+			<arg value="-Wall"/>
+			<arg value="-Dnullptr=0"/>
+			<arg value="-D_JNI_IMPLEMENTATION_"/>
+			<arg value="-Wl,--kill-at"/>
+			<arg value="-O2"/>
+			<arg value="-s"/>
+			<arg value="-shared"/>
+			<arg value="-I${header.dir}"/>
+			<arg value="-I${jdk.dir}/include/"/>
+			<arg value="-I${jdk.dir}/include/win32/"/>
+			<arg value="-o${dist.dir}/native/MumbleLink.dll"/>
+			<arg line="${cpp.files.list}"/>
+		</exec>
+	</target>
+
+	<target name="dist" depends="compile,compileNative">
+		<jar destfile="${dist.dir}/MumbleLink.jar" basedir="${bin.dir}"/>
+	</target>
+
+	<target name="clean">
+		<delete dir="${bin.dir}"/>
+		<delete dir="${header.dir}"/>
+	</target>
+
+	<target name="distclean" depends="clean">
+		<delete dir="${dist.dir}"/>
+	</target>
+</project>
