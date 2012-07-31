@@ -1,4 +1,3 @@
-#include <cstdlib>
 #include <string>
 #include <windows.h>
 
@@ -21,6 +20,13 @@ struct vec3_t {
 	vec3_t(float x, float y, float z) { v[0] = x; v[1] = y; v[2] = z; }
 	void write(float* dst) { dst[0] = v[0]; dst[1] = v[1]; dst[2] = v[2]; }
 };
+
+void writeString(wchar_t* dst, std::string& src, size_t dstSize)
+{
+#ifdef WIN32
+	MultiByteToWideChar(CP_UTF8, 0, src.c_str(), src.length(), dst, dstSize);
+#endif
+}
 
 #ifdef WIN32
 static HANDLE hMap;
@@ -57,8 +63,8 @@ void updateMumble(
 	if (lm == nullptr) return;
 
 	if (lm->uiVersion != 2) {
-		std::mbstowcs(lm->name, linkInfo.name.c_str(), sizeof(lm->name) / sizeof(*lm->name));
-		std::mbstowcs(lm->description, linkInfo.description.c_str(), sizeof(lm->description) / sizeof(*lm->description));
+		writeString(lm->name, linkInfo.name, sizeof(lm->name) / sizeof(*lm->name));
+		writeString(lm->description, linkInfo.description, sizeof(lm->description) / sizeof(*lm->description));
 		lm->uiVersion = 2;
 	}
 	lm->uiTick++;
@@ -71,7 +77,7 @@ void updateMumble(
 	cameraForward.write(lm->fCameraFront);
 	cameraUp.write(lm->fCameraTop);
 
-	std::mbstowcs(lm->identity, linkInfo.identity.c_str(), sizeof(lm->identity) / sizeof(*lm->identity));
+	writeString(lm->identity, linkInfo.identity, sizeof(lm->identity) / sizeof(*lm->identity));
 	linkInfo.context.copy(lm->context, linkInfo.context.length(), 0);
 	lm->context_len = linkInfo.context.length();
 }
