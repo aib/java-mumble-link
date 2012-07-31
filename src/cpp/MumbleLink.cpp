@@ -82,34 +82,30 @@ void updateMumble(
 	lm->context_len = linkInfo.context.length();
 }
 
+void readJNIString(JNIEnv* env, std::string& dst, jstring src)
+{
+	const char* chars = env->GetStringUTFChars(src, nullptr);
+	if (chars != nullptr) {
+		size_t charCount = env->GetStringUTFLength(src);
+		dst.assign(chars, charCount);
+		env->ReleaseStringUTFChars(src, chars);
+	}
+}
+
 JNIEXPORT void JNICALL Java_net_aib42_mumblelink_MumbleLink_setNameAndDescription(
 	JNIEnv* env, jobject,
 	jstring name, jstring description
 ) {
-	linkInfo.name.assign(
-		env->GetStringUTFChars(name, nullptr),
-		env->GetStringUTFLength(name)
-	);
-
-	linkInfo.description.assign(
-		env->GetStringUTFChars(description, nullptr),
-		env->GetStringUTFLength(description)
-	);
+	readJNIString(env, linkInfo.name, name);
+	readJNIString(env, linkInfo.description, description);
 }
 
 JNIEXPORT void JNICALL Java_net_aib42_mumblelink_MumbleLink_setIdentityAndContext(
 	JNIEnv* env, jobject,
 	jstring identity, jstring context
 ) {
-	linkInfo.identity.assign(
-		env->GetStringUTFChars(identity, nullptr),
-		env->GetStringUTFLength(identity)
-	);
-
-	linkInfo.context.assign(
-		env->GetStringUTFChars(context, nullptr),
-		env->GetStringUTFLength(context)
-	);
+	readJNIString(env, linkInfo.identity, identity);
+	readJNIString(env, linkInfo.context, context);
 }
 
 JNIEXPORT void JNICALL Java_net_aib42_mumblelink_MumbleLink_updateMumble(
