@@ -22,6 +22,34 @@ struct vec3_t {
 	void write(float* dst) { dst[0] = v[0]; dst[1] = v[1]; dst[2] = v[2]; }
 };
 
+#ifdef WIN32
+static HANDLE hMap;
+#endif
+
+__attribute__((constructor))
+void init()
+{
+#ifdef WIN32
+	hMap = OpenFileMappingW(FILE_MAP_ALL_ACCESS, FALSE, L"MumbleLink");
+	if (hMap != NULL) {
+		lm = reinterpret_cast<LinkedMem*>(MapViewOfFile(hMap, FILE_MAP_ALL_ACCESS, 0, 0, 0));
+	}
+#endif
+}
+
+__attribute__((destructor))
+void deinit()
+{
+#ifdef WIN32
+	if (hMap != NULL) {
+		if (lm != nullptr) {
+			UnmapViewOfFile(hMap);
+		}
+		CloseHandle(hMap);
+	}
+#endif
+}
+
 void updateMumble(
 	vec3_t avatarPos, vec3_t avatarForward, vec3_t avatarUp,
 	vec3_t cameraPos, vec3_t cameraForward, vec3_t cameraUp
