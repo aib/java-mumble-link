@@ -78,7 +78,7 @@ void updateMumble(
 	cameraUp.write(lm->fCameraTop);
 
 	writeString(lm->identity, linkInfo.identity, sizeof(lm->identity) / sizeof(*lm->identity));
-	linkInfo.context.copy(lm->context, linkInfo.context.length(), 0);
+	linkInfo.context.copy(lm->context, sizeof(lm->context), 0);
 	lm->context_len = linkInfo.context.length();
 }
 
