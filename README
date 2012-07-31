@@ -1,0 +1,14 @@
+Java Mumble Link
+
+This is a JNI library to talk to the Mumble Link plugin.
+
+You can find the Mumble project at:
+http://mumble.info
+
+Note:
+A similar library exists inside the mod_mumblelink project at:
+http://sourceforge.net/projects/modmumblelink/
+and
+https://github.com/TheSkorm/mod_mumblelink
+(Though it was not consulted while this library was being developed, I thought
+it was worth mentioning.)
