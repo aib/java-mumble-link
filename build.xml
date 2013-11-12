@@ -1,12 +1,19 @@
 <?xml version="1.0"?>
 
-<project name="MumbleLink">
+<project name="MumbleLink" default="dist">
 	<property name="jdk.dir" value="${java.home}/.."/>
 	<property name="java.src.dir" value="src/java"/>
 	<property name="cpp.src.dir" value="src/cpp"/>
 	<property name="bin.dir" value="bin"/>
 	<property name="header.dir" value="include"/>
 	<property name="dist.dir" value="dist"/>
+
+	<condition property="linux">
+		<os family="unix"/>
+	</condition>
+	<condition property="windows">
+		<os family="windows"/>
+	</condition>
 
 	<fileset id="cpp.files" dir="${cpp.src.dir}">
 		<include name="**/*.cpp"/>
@@ -25,7 +32,27 @@
 			class="net.aib42.mumblelink.MumbleLink"/>
 	</target>
 
-	<target name="compileNative" depends="generateHeaders">
+	<target name="compileNative" depends="compileNative-linux,compileNative-win32-gcc"/>
+
+	<target name="compileNative-linux" depends="generateHeaders" if="linux">
+		<mkdir dir="${dist.dir}/native"/>
+		<exec executable="g++">
+			<arg value="-Wall"/>
+			<arg value="-Dnullptr=0"/>
+			<arg value="-D_JNI_IMPLEMENTATION_"/>
+			<arg value="-O2"/>
+			<arg value="-s"/>
+			<arg value="-shared"/>
+			<arg value="-fPIC"/>
+			<arg value="-I${header.dir}"/>
+			<arg value="-I${jdk.dir}/include/"/>
+			<arg value="-I${jdk.dir}/include/linux/"/>
+			<arg value="-o${dist.dir}/native/MumbleLink.so"/>
+			<arg line="${cpp.files.list}"/>
+		</exec>
+	</target>
+
+	<target name="compileNative-win32-gcc" depends="generateHeaders" if="windows">
 		<mkdir dir="${dist.dir}/native"/>
 		<exec executable="g++">
 			<arg value="-Wall"/>
