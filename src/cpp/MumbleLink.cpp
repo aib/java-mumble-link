@@ -1,7 +1,9 @@
 #include <string>
-#include <windows.h>
-
 #include <jni.h>
+
+#ifdef WIN32
+	#include <windows.h>
+#endif
 
 #include "net_aib42_mumblelink_MumbleLink.h"
 #include "LinkedMem.h"
